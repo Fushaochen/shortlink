@@ -67,24 +67,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     }
 
     @Override
-    public void register(UserRegisterReqDTO registerParam) {
-        if(!availableUsername(registerParam.getUsername())){
+    public void register(UserRegisterReqDTO requestParam) {
+        if(!availableUsername(requestParam.getUsername())){
             throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
         }
-        RLock lock = redissonClient.getLock(RedisCacheConstant.LOCK_USER_REGISTER_KEY + registerParam.getUsername());
+        RLock lock = redissonClient.getLock(RedisCacheConstant.LOCK_USER_REGISTER_KEY + requestParam.getUsername());
         try {
             if (lock.tryLock()){
-                int insert = baseMapper.insert(BeanUtil.toBean(registerParam, UserDO.class));
+                int insert = baseMapper.insert(BeanUtil.toBean(requestParam, UserDO.class));
                 if (insert < 1){
                     throw new ClientException(UserErrorCodeEnum.USER_SAVE_ERROR);
                 }
-                userRegisterCachePenetrationBloomFilter.add(registerParam.getUsername());
+                userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
                 return;
             }
             throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
         } finally {
             lock.unlock();
         }
-
     }
 }

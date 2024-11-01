@@ -35,7 +35,7 @@ public interface UserService extends IService<UserDO> {
 
     /**
      * 注册用户
-     * @param registerParam 注册用户请求参数
+     * @param requestParam 注册用户请求参数
      */
-    void register(UserRegisterReqDTO registerParam);
+    void register(UserRegisterReqDTO requestParam);
 }
