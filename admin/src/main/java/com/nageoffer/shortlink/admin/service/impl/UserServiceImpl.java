@@ -115,7 +115,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             throw new ClientException("用户不存在");
         }
         Boolean hasLogin = stringRedisTemplate.hasKey("login_" + requestParam.getUsername());
-        if(hasLogin != null && hasLogin){
+        if (hasLogin != null && hasLogin) {
             throw new ClientException("用户已登录");
         }
         /**
@@ -135,5 +135,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     @Override
     public Boolean checkLogin(String username,String token) {
         return stringRedisTemplate.opsForHash().get("login_" + username,token) != null;
+    }
+
+    @Override
+    public void logout(String username, String token) {
+        if (checkLogin(username,token)){
+            stringRedisTemplate.delete("login_" + username);
+            return;
+        }
+        throw new ClientException("用户token不存在或未登录");
     }
 }
